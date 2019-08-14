@@ -1,35 +1,30 @@
 from django.http import JsonResponse
-from rest_framework import mixins, generics, viewsets, permissions, status
 from rest_framework.generics import ListAPIView
-from rest_framework_jwt.serializers import User
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import Process, Profile, Content, Tag, UserOutput
 from .serializers import ProcessSerializer, ProfilePackage, ProfileSerializer, \
     ContentSerializer, TagSerializer, ProfilePackageSerializer, UserOutputSerializer, MyTokenObtainPairSerializer
 
 from rest_framework.permissions import IsAuthenticated
-
-from rest_framework_jwt.settings import api_settings
 from rest_framework import status, generics
 
 
 class ProcessAPIView(ListAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     # authentication_classes = [CustomAuthentication]
     serializer_class = ProcessSerializer
     queryset = Process.objects.all()
 
 
 class UserOutputAPIView(ListAPIView, generics.CreateAPIView):
-    # permission_classes  = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     # authentication_classes = [CustomAuthentication]
     serializer_class = UserOutputSerializer
     queryset = UserOutput.objects.all()
 
 
 class PackageProfileAPIView(ListAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ProfilePackageSerializer
     queryset = ProfilePackage.objects.all()
 
