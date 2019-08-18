@@ -70,7 +70,9 @@ class ProfileSerializer(serializers.ModelSerializer):
             'is_tagged',
             'is_valid',
             'tag',
-            'content'
+            'content',
+            'status',
+            'expire_date',
         ]
 
 

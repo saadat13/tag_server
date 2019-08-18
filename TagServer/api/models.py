@@ -12,6 +12,12 @@ TYPE = [
     ("video", "video")
 ]
 
+STATUS = [
+    ("available", "available"),
+    ("blocked", "blocked"),
+    ("tagged", "tagged")
+]
+
 
 class Process(models.Model):
     id = models.IntegerField(primary_key=True, null=False, blank=False)
@@ -39,6 +45,9 @@ class Profile(models.Model):
     is_multi_content = models.BooleanField(default=False)
     is_tagged = models.BooleanField(default=False)
     is_valid = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS, default="available")
+    expire_date = models.DateTimeField(null=True, blank=True)
+
 
     def __str__(self):
         return str(self.id)

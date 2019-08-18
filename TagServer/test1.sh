@@ -1,3 +1,3 @@
 curl \
-  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTY1NzY4MDQ3LCJqdGkiOiJmMmY5NDhjOTNkZTA0NDcxYWU4OTU3YTZhY2E5OWFhNSIsInVzZXJfaWQiOjF9.6ogqwGsit9hbfaqENEV1xWiaf4dyq-3102C0pVh19yo" \
-  http://localhost:8000/api/outputs/
+  -H  "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTY1ODEwOTAzLCJqdGkiOiI4YTk0NTcwNTMzODY0OGM5OTkyZWRkM2UzZDY0ZWVhYSIsInVzZXJfaWQiOjF9.YFgAEORZUFvHl0ghU-LGS9RuTteulJlsfKuhvUYmvl4" \
+  http://localhost:8000/api/processes/1/block

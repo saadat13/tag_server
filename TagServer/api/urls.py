@@ -1,10 +1,13 @@
 from django.urls import path
-from .views import ProcessAPIView, PackageProfileAPIView, UserOutputAPIView
-from rest_framework_simplejwt import views as jwt_views
+from .views import ProcessAPIView, PackageProfileAPIView,\
+    UserOutputAPIView
+from .views import block_profile, unblock_profile
 
 
 urlpatterns = [
     path('processes/', ProcessAPIView.as_view()),
-    path('processes/<pid>/profiles/', PackageProfileAPIView.as_view()),
+    path('processes/<pid>/package_profiles/', PackageProfileAPIView.as_view()),
+    path('processes/<pid>/package_profiles/<id>/<i>/block', block_profile),       # block profile when tagging it's content
+    path('processes/<pid>/package_profiles/<id>/<i>/unblock', unblock_profile),   # unblock profile when cancel tagging
     path('outputs/', UserOutputAPIView.as_view()),
 ]
