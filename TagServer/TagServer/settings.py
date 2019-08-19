@@ -164,5 +164,6 @@ SIMPLE_JWT = {
 }
 
 CRONJOBS = [
-    ('*/1 * * * *', 'root bash /home/hassan/Desktop/dev/src/TagServer/api/unblock.sh', '2>&1 >> /home/hassan/Desktop/out.txt')
+    ('*/1 * * * *', '/home/hassan/.local/share/virtualenvs/src-o0s753qq/bin/python3.6 /home/hassan/Desktop/dev/src/TagServer/manage.py unblock_profile')
+    #TODO this line should be added to crontab using crontab -e
 ]
