@@ -8,51 +8,49 @@ from .serializers import ProcessSerializer, ProfilePackage,\
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import  generics
 from datetime import datetime, timedelta
-
-
+from django.shortcuts import get_object_or_404
+import time
+from django.http import Http404
+import json
+from .serializers import OutputTagSerializer
 
 class ProcessAPIView(ListAPIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     # authentication_classes = [CustomAuthentication]
     serializer_class = ProcessSerializer
     queryset = Process.objects.all()
 
 
 class UserOutputAPIView(ListAPIView, generics.CreateAPIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     # authentication_classes = [CustomAuthentication]
     serializer_class = UserOutputSerializer
     queryset = UserOutput.objects.all()
+
+    # def perform_create(self, request):
+    #
+    #     super().perform_create(self, request)
 
     def get_queryset(self):
         return UserOutput.objects.all()
 
 
-class PackageProfileAPIView(ListAPIView):
-    permission_classes = [IsAuthenticated]
+class PackageProfileAPIView(generics.RetrieveAPIView):
+    # permission_classes = [IsAuthenticated]
     serializer_class = ProfilePackageSerializer
     queryset = ProfilePackage.objects.all()
 
-    def get_queryset(self):
-        return ProfilePackage.objects.all()
-
-    def get(self, *args, **kwargs):
-        data = self.get_serializer(self.get_queryset(), many=True).data
-        flag = (len(data) != 0)
-        if flag:
-            print(data)
-            has_next = data[0]['has_next']
-            process_id = data[0]['process']
+    def get_object(self):
+        package = ProfilePackage.objects.filter(process__id=self.kwargs['pid'], status="available", is_tagged=False).order_by('id').first()
+        print(package)
+        if package != None:
+            # package.status = "blocked"
+            millis = int(round(time.time() * 1000))
+            package.expire_date = str(millis + 1*60*60*1000)
+            package.save()
+            return package
         else:
-            return JsonResponse({"info": "there is no profile package!"})
-        serialized_profiles = ProfileSerializer(ProfilePackage.objects.filter(process__id=self.kwargs['pid']).first().profile_set.all(), many=True).data
-        return JsonResponse(
-            {
-                'has_next': has_next,
-                'process': process_id,
-                'profiles': serialized_profiles
-            }
-        )
+            raise Http404
 
 
 # @api_view(['POST'])
@@ -97,6 +95,3 @@ def unblock_profile(request, *args, **kwargs):
             return JsonResponse({"error": "process is already available, refresh your process list"})
     except Exception as e:
         return JsonResponse({"error": str(e)})
-
-
-

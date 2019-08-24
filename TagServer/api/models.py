@@ -14,8 +14,7 @@ TYPE = [
 
 STATUS = [
     ("available", "available"),
-    ("blocked", "blocked"),
-    ("tagged", "tagged")
+    ("blocked", "blocked")
 ]
 
 
@@ -34,6 +33,11 @@ class ProfilePackage(models.Model):
     id = models.IntegerField(primary_key=True)
     process = models.ForeignKey(Process, on_delete=models.CASCADE)
     has_next = models.BooleanField(default=False)
+    is_valid = models.BooleanField(default=False)
+    is_tagged = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS, default="available")
+    expire_date = models.CharField(max_length = 50, null=True, blank=True)
+
 
     def __str__(self):
         return str(self.id)
@@ -43,10 +47,6 @@ class Profile(models.Model):
     id = models.IntegerField(primary_key=True)
     packageProfile = models.ForeignKey(ProfilePackage, on_delete=models.CASCADE)
     is_multi_content = models.BooleanField(default=False)
-    is_tagged = models.BooleanField(default=False)
-    is_valid = models.BooleanField(default=False)
-    status = models.CharField(max_length=20, choices=STATUS, default="available")
-    expire_date = models.DateTimeField(null=True, blank=True)
 
 
     def __str__(self):
@@ -75,7 +75,17 @@ class Tag(models.Model):
 
 class UserOutput(models.Model):
     id = models.AutoField(primary_key=True, blank=False, null=False)
-    process_id = models.IntegerField(null=False, blank=False)
-    profile_id = models.IntegerField(null=False, blank=False)
+    process_id = models.IntegerField(null=False, blank=False, default=0)
+    profile_package_id = models.IntegerField(null=False, blank=False, default=0)
+    profile_id = models.IntegerField(null=False, blank=False, default=0)
+
+    def __str__(self):
+        return "output %d"%self.id
+
+class OutputTag(models.Model):
+    id = models.AutoField(primary_key=True, blank=False, null=False)
+    user_output = models.ForeignKey(UserOutput, on_delete=models.CASCADE)
     tag_title = models.CharField(max_length=100, blank=False, null=False)
 
+    def __str__(self):
+        return self.tag_title

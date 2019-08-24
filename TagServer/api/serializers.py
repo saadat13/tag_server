@@ -1,4 +1,4 @@
-from .models import Process, ProfilePackage, Profile, Content, Tag, UserOutput
+from .models import Process, ProfilePackage, Profile, Content, Tag, UserOutput, OutputTag
 from rest_framework import serializers
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -67,22 +67,31 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'is_multi_content',
-            'is_tagged',
-            'is_valid',
             'tag',
             'content',
-            'status',
-            'expire_date',
         ]
 
 
 class ProfilePackageSerializer(serializers.ModelSerializer):
+    profiles = serializers.SerializerMethodField(read_only=True)
+
+    @staticmethod
+    def get_profiles(obj):
+        # obj is model instance
+        return ProfileSerializer(Profile.objects.filter(packageProfile__id=obj.id).all(), many=True).data
+
+
     class Meta:
         model = ProfilePackage
         fields = [
             'id',
             'process',
             'has_next',
+            'is_tagged',
+            'is_valid',
+            'status',
+            'expire_date',
+            'profiles',
         ]
 
 
@@ -106,22 +115,38 @@ class ContentSerializer(serializers.ModelSerializer):
         ]
 
 
+class OutputTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OutputTag
+        fields=[
+            'id',
+            'tag_title',
+        ]
+
 class UserOutputSerializer(serializers.ModelSerializer):
+    # tags = serializers.SerializerMethodField()
+    #
+    # @staticmethod
+    # def get_tags(obj):
+    #     # obj is model instance
+    #     obj.output_tag_set.all()
+
     class Meta:
         model = UserOutput
         fields = [
             'id',
             'process_id',
+            'profile_package_id',
             'profile_id',
-            'tag_title',
+            # 'tags',
         ]
 
-    def validate(self, data):
-        tag = data.get('tag_title', None)
-        if tag == "":
-            tag = None
-        if tag is None:
-            raise serializers.ValidationError("tag is empty!")
-        elif len(tag) > 20:
-            raise serializers.ValidationError("maximum length exceeded!")
-        return data
+    # def validate(self, data):
+    #     tag = data.get('tag_title', None)
+    #     if tag == "":
+    #         tag = None
+    #     if tag is None:
+    #         raise serializers.ValidationError("tag is empty!")
+    #     elif len(tag) > 20:
+    #         raise serializers.ValidationError("maximum length exceeded!")
+    #     return data

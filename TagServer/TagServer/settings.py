@@ -27,7 +27,7 @@ SECRET_KEY = '92hwr_2y8j38r8sr$4x**alb8!z3@j+pvkd7z)&h))vdr5qpjc'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -92,8 +92,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mydb',
-        'USER': 'myuser',
-        'PASSWORD': '1',
+        'USER': 'hassan',
+        'PASSWORD': '1234',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -164,6 +164,6 @@ SIMPLE_JWT = {
 }
 
 CRONJOBS = [
-    ('*/1 * * * *', '/home/hassan/.local/share/virtualenvs/src-o0s753qq/bin/python3.6 /home/hassan/Desktop/dev/src/TagServer/manage.py unblock_profile')
+    ('*/1 * * * *', '/home/saadat/Desktop/dev/env/bin/python3.6 /home/saadat/Desktop/dev/src/TagServer/manage.py unblock_profile')
     #TODO this line should be added to crontab using crontab -e
 ]
