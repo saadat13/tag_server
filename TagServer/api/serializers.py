@@ -1,26 +1,12 @@
 from .models import Process, ProfilePackage, Profile, Content, Tag, UserOutput, OutputTag
 from rest_framework import serializers
 
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
-
-
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        print(user.is_staff)
-        # Add custom claims
-        # token['name'] = user.name
-        # ...
-
-        return token
+from drf_writable_nested import WritableNestedModelSerializer
 
 
 class ProcessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Process
-        # list_serializer_class = CollegeListSerializer
         fields = [
             'id',
             'title',
@@ -80,7 +66,6 @@ class ProfilePackageSerializer(serializers.ModelSerializer):
         # obj is model instance
         return ProfileSerializer(Profile.objects.filter(packageProfile__id=obj.id).all(), many=True).data
 
-
     class Meta:
         model = ProfilePackage
         fields = [
@@ -115,21 +100,17 @@ class ContentSerializer(serializers.ModelSerializer):
         ]
 
 
-class OutputTagSerializer(serializers.ModelSerializer):
+class OutputTagSerializer(WritableNestedModelSerializer):
     class Meta:
         model = OutputTag
-        fields=[
+        fields = [
             'id',
-            'tag_title',
+            'tag_title'
         ]
 
-class UserOutputSerializer(serializers.ModelSerializer):
-    # tags = serializers.SerializerMethodField()
-    #
-    # @staticmethod
-    # def get_tags(obj):
-    #     # obj is model instance
-    #     obj.output_tag_set.all()
+
+class UserOutputSerializer(OutputTagSerializer):
+    tags = OutputTagSerializer(many=True)
 
     class Meta:
         model = UserOutput
@@ -138,15 +119,6 @@ class UserOutputSerializer(serializers.ModelSerializer):
             'process_id',
             'profile_package_id',
             'profile_id',
-            # 'tags',
+            'tags',
         ]
 
-    # def validate(self, data):
-    #     tag = data.get('tag_title', None)
-    #     if tag == "":
-    #         tag = None
-    #     if tag is None:
-    #         raise serializers.ValidationError("tag is empty!")
-    #     elif len(tag) > 20:
-    #         raise serializers.ValidationError("maximum length exceeded!")
-    #     return data

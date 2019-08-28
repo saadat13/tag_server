@@ -52,6 +52,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    # 'PAGE_SIZE': 100,
+
 }
 
 MIDDLEWARE = [
@@ -164,6 +167,6 @@ SIMPLE_JWT = {
 }
 
 CRONJOBS = [
-    ('*/1 * * * *', '/home/saadat/Desktop/dev/env/bin/python3.6 /home/saadat/Desktop/dev/src/TagServer/manage.py unblock_profile')
+    ('*/1 * * * *', '/home/hassan/.local/share/virtualenvs/src-o0s753qq/bin/python3.6 /home/hassan/Desktop/dev/src/TagServer/manage.py unblock_profile')
     #TODO this line should be added to crontab using crontab -e
 ]
