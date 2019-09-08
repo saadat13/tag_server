@@ -19,6 +19,8 @@ class ProcessAPIView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
         role = user.role
+        if role == "full_expert":
+            return Process.objects.exclude(users=user).filter(profilepackage__is_tagged=True).all()
         return Process.objects.exclude(users=user).all()
 
 
@@ -31,20 +33,22 @@ class UserOutputAPIView(ListAPIView, generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         data = request.data
         process_id = data['process_id']
-        package_profile_id = data['package_profile_id']
+        package_profile_id = data['profile_package_id']
         profile_id = data['profile_id']
         try:
             current_process = Process.objects.get(id=process_id)
             current_package = ProfilePackage.objects.get(id=package_profile_id)
 
             current_process.users.add(request.user)  #adding current user to users list tagged this profile
+            current_process.save()
             role = request.user.role
-            if role is "expert":
+            if role == "expert":
                 current_package.is_tagged = True
-                current_package.save()
-            elif role is "full_expert":
+            elif role == "full_expert":
                 current_package.is_valid = True
-                current_package.save()
+            if not current_package.has_next:
+                current_package.status = "available"
+            current_package.save()
         except Exception as e:
             print(str(e))
         return super(UserOutputAPIView, self).post(request, *args, **kwargs)
@@ -56,8 +60,11 @@ class PackageProfileAPIView(generics.RetrieveAPIView):
     queryset = ProfilePackage.objects.all()
 
     def get_object(self):
-        package = ProfilePackage.objects.filter(process__id=self.kwargs['pid'], status="available", is_tagged=False).order_by('id').first()
-        print(package)
+        role = self.request.user.role
+        package = ProfilePackage.objects\
+            .filter(process__id=self.kwargs['pid'], status="available", is_tagged=(role == "full_expert"))\
+            .order_by('id')\
+            .first()
         if package is not None:
             package.status = "blocked"
             millis = int(round(time.time() * 1000))

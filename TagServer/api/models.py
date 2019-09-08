@@ -36,11 +36,11 @@ class ProfilePackage(models.Model):
     id = models.IntegerField(primary_key=True)
     process = models.ForeignKey(Process, on_delete=models.CASCADE)  # process which this package is related to
     has_next = models.BooleanField(default=False)   # defines whether this package has next or not
+    status = models.CharField(max_length=20, choices=STATUS, default="available")  # defines whether package is available or blocked by users
+    expire_date = models.CharField(max_length=50, null=True, blank=True)  # defines how much time user has to tag profiles of this package
     is_valid = models.BooleanField(default=False)   # defines whether this package is validated by full expert or not
     is_tagged = models.BooleanField(default=False)  # defines whether this package is already tagged by users or not
-    status = models.CharField(max_length=20, choices=STATUS, default="available") # defines whether package is available or blocked by users
-    expire_date = models.CharField(max_length=50, null=True, blank=True)        # defines how much time user has to tag profiles of this package
-
+    
     def __str__(self):
         return str(self.id)
 
@@ -88,6 +88,7 @@ class OutputTag(models.Model):
     id = models.AutoField(primary_key=True, blank=False, null=False)
     user_output = models.ForeignKey(UserOutput, related_name="tags", on_delete=models.CASCADE)
     tag_title = models.CharField(max_length=100, blank=False, null=False)
+    percent = models.PositiveIntegerField(default=0, null=True, blank=True)
 
     def __str__(self):
         return self.tag_title
