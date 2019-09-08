@@ -1,7 +1,14 @@
+from accounts.models import CustomUser
 from .models import Process, ProfilePackage, Profile, Content, Tag, UserOutput, OutputTag
 from rest_framework import serializers
 
 from drf_writable_nested import WritableNestedModelSerializer
+
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['username']
 
 
 class ProcessSerializer(serializers.ModelSerializer):
@@ -18,11 +25,16 @@ class ProcessSerializer(serializers.ModelSerializer):
 
 class TagSerializer(serializers.ModelSerializer):
     process = serializers.SerializerMethodField(read_only=True)
+    users = serializers.SerializerMethodField(read_only=True)
 
     @staticmethod
     def get_process(obj):
         # obj is model instance
         return obj.profile.packageProfile.process.id
+
+    @staticmethod
+    def get_users(obj):
+        return CustomUserSerializer(obj.users.all(), many=True).data
 
     class Meta:
         model = Tag
@@ -31,6 +43,8 @@ class TagSerializer(serializers.ModelSerializer):
             'process',
             'profile',
             'title',
+            'percent',
+            'users',
         ]
 
 

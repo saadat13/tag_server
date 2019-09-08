@@ -1,7 +1,8 @@
 from django.http import JsonResponse
 from rest_framework.generics import ListAPIView
 
-from .models import Process, UserOutput
+from accounts.models import CustomUser
+from .models import Process, UserOutput, Tag
 from .serializers import ProcessSerializer, ProfilePackage, ProfilePackageSerializer, UserOutputSerializer
 
 from rest_framework.permissions import IsAuthenticated
@@ -32,23 +33,35 @@ class UserOutputAPIView(ListAPIView, generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         data = request.data
-        process_id = data['process_id']
-        package_profile_id = data['profile_package_id']
-        profile_id = data['profile_id']
+        process_id = int(data['process_id'])
+        package_profile_id = int(data['profile_package_id'])
+        tags = data['tags']
+        profile_id = int(data['profile_id'])
         try:
             current_process = Process.objects.get(id=process_id)
             current_package = ProfilePackage.objects.get(id=package_profile_id)
-
-            current_process.users.add(request.user)  #adding current user to users list tagged this profile
+            current_process.users.add(request.user) #adding current user to users list tagged this profile
             current_process.save()
-            role = request.user.role
-            if role == "expert":
-                current_package.is_tagged = True
-            elif role == "full_expert":
-                current_package.is_valid = True
+            total_experts = CustomUser.objects.filter(role="expert").count()
+            print(str(total_experts))
+            for tag in tags:
+                t = Tag.objects \
+                    .get(title=tag['tag_title'], profile_id=profile_id, profile__packageProfile__id = package_profile_id)
+                if t is not None:
+                    t.users.add(request.user)
+                    t.save()
+                    if total_experts != 0:
+                        percent = int(round((t.users.all().count()*100 / total_experts)))
+                        t.percent = percent
+                        t.save()
             if not current_package.has_next:
+                role = request.user.role
+                if role == "expert":
+                    current_package.is_tagged = True
+                elif role == "full_expert":
+                    current_package.is_valid = True
                 current_package.status = "available"
-            current_package.save()
+                current_package.save()
         except Exception as e:
             print(str(e))
         return super(UserOutputAPIView, self).post(request, *args, **kwargs)
@@ -61,9 +74,9 @@ class PackageProfileAPIView(generics.RetrieveAPIView):
 
     def get_object(self):
         role = self.request.user.role
-        package = ProfilePackage.objects\
-            .filter(process__id=self.kwargs['pid'], status="available", is_tagged=(role == "full_expert"))\
-            .order_by('id')\
+        package = ProfilePackage.objects \
+            .filter(process__id=self.kwargs['pid'], status="available", is_tagged=(role == "full_expert")) \
+            .order_by('id') \
             .first()
         if package is not None:
             package.status = "blocked"
@@ -73,47 +86,3 @@ class PackageProfileAPIView(generics.RetrieveAPIView):
             return package
         else:
             raise Http404
-
-#
-# # @api_view(['POST'])
-# # @permission_classes([IsAuthenticated])
-# def block_profile(request, *args, **kwargs):
-#     pid = kwargs['pid']
-#     id = kwargs['id']
-#     i = kwargs['i']
-#     try:
-#         profile = Profile.objects.filter(id=i, packageProfile__id=id, packageProfile__process__id=pid).first()
-#         status = profile.status
-#         if status == "blocked":
-#             return JsonResponse({"error": "profile is already blocked!"})
-#         elif status == "tagged":
-#             return JsonResponse({"error": "profile is already tagged, refresh your profile list"})
-#         else:
-#             profile.status = "blocked"
-#             profile.expire_date = datetime.now() + timedelta(hours=1)
-#             profile.save()
-#             return JsonResponse({"error": "blocked successfully"})
-#     except Exception as e:
-#         return JsonResponse({"error": str(e)})
-#
-#
-# # @api_view(['POST'])
-# # @permission_classes([IsAuthenticated])
-# def unblock_profile(request, *args, **kwargs):
-#     pid = kwargs['pid']
-#     id = kwargs['id']
-#     i = kwargs['i']
-#     try:
-#         profile = Profile.objects.filter(id=i, packageProfile__id=id, packageProfile__process__id=pid).first()
-#         status = profile.status
-#         if status == "blocked":
-#             profile.status = "unblocked"
-#             profile.expire_date = None
-#             profile.save()
-#             return JsonResponse({"error": "unblocked successfully"})
-#         elif status == "tagged":
-#             return JsonResponse({"error": "process is already tagged, refresh your process list"})
-#         else:
-#             return JsonResponse({"error": "process is already available, refresh your process list"})
-#     except Exception as e:
-#         return JsonResponse({"error": str(e)})
