@@ -49,5 +49,5 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractUser):
     objects = CustomUserManager()
-    role = models.CharField(choices=Roles, max_length=20, default='Expert')
+    role = models.CharField(choices=Roles, max_length=20, default='expert')
 

@@ -42,7 +42,7 @@ class TagSerializer(serializers.ModelSerializer):
         fields = [
             'title',
             'is_checked',
-        ]
+            ]
 
 
 class ProfileSerializer(serializers.ModelSerializer):

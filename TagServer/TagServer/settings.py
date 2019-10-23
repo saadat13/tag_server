@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'accounts',
-    'django_crontab',
 ]
 
 AUTH_USER_MODEL = 'accounts.CustomUser' # new
@@ -95,7 +94,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mydb',
-        'USER': 'hassan',
+        'USER': 'postgres',
         'PASSWORD': '1234',
         'HOST': 'localhost',
         'PORT': '5432',
@@ -165,8 +164,3 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
-
-CRONJOBS = [
-    ('*/1 * * * *', '/home/hassan/.local/share/virtualenvs/src-o0s753qq/bin/python3.6 /home/hassan/Desktop/dev/src/TagServer/manage.py unblock_profile')
-    #TODO this line should be added to crontab using crontab -e
-]

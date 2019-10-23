@@ -17,7 +17,7 @@ class ProcessListAPIView(ListAPIView):
     # authentication_classes = [CustomAuthentication]
     serializer_class = ProcessSerializer
     queryset = Process.objects.all()
-    pagination_class = PostPageNumberPagination
+    # pagination_class = PostPageNumberPagination
     lookup_field = 'pk'
 
     # TODO may be uncommented
@@ -44,12 +44,11 @@ class UserOutputAPIView(ListAPIView, generics.CreateAPIView):
     # authentication_classes = [CustomAuthentication]
     serializer_class = UserOutputSerializer
     queryset = UserOutput.objects.all()
-    pagination_class = PostPageNumberPagination
+    # pagination_class = PostPageNumberPagination
 
     def post(self, request, *args, **kwargs):
         data = request.data
         process_id = int(data['process_id'])
-        profile_id = int(data['profile_id'])
         current_process = Process.objects.filter(pk=process_id)
         if current_process:
             current_process = current_process.first()
@@ -70,7 +69,7 @@ class ProfileListAPIView(generics.ListAPIView):
     # permission_classes = [IsAuthenticated]
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
-    pagination_class = PostPageNumberPagination
+    # pagination_class = PostPageNumberPagination
 
     def get_queryset(self):
         try:
