@@ -26,6 +26,8 @@ class Process(models.Model):
     status = models.CharField(max_length=20, choices=STATUS, default="available")
     is_tagged = models.BooleanField(default=False)
     is_valid = models.BooleanField(default=False)
+    expert_user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='experts')
+    full_expert_user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='fulls')
 
     def __str__(self):
         return self.title
@@ -61,7 +63,7 @@ class Tag(models.Model):
 class UserOutput(models.Model):
     process_id = models.IntegerField(null=False, blank=False)
     profile_id = models.IntegerField(null=False, blank=False)
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    # user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return "output %d"%self.pk

@@ -2,7 +2,6 @@ from django.contrib import admin
 from .models import  Process , Profile, Content, Tag, UserOutput, OutputTag
 
 
-
 # Register your models here.
 admin.site.register(Process)
 admin.site.register(Profile)

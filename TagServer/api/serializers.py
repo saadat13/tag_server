@@ -16,6 +16,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class ProcessSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField(read_only=True)
     number_of_profiles = serializers.SerializerMethodField(read_only=True)
+    expert_user = serializers.SerializerMethodField(read_only=True)
 
     @staticmethod
     def get_number_of_profiles(obj):
@@ -25,6 +26,10 @@ class ProcessSerializer(serializers.ModelSerializer):
     def get_tags(obj):
         return TagSerializer(Tag.objects.filter(process_id=obj.pk).all(), many=True).data
 
+    @staticmethod
+    def get_expert_user(self):
+        return str(self.expert_user)
+
     class Meta:
         model = Process
         fields = [
@@ -33,6 +38,7 @@ class ProcessSerializer(serializers.ModelSerializer):
             'number_of_profiles',
             'tag_method',
             'tags',
+            'expert_user',
         ]
 
 
@@ -42,7 +48,7 @@ class TagSerializer(serializers.ModelSerializer):
         fields = [
             'title',
             'is_checked',
-            ]
+        ]
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -81,15 +87,32 @@ class OutputTagSerializer(WritableNestedModelSerializer):
 
 class UserOutputSerializer(OutputTagSerializer):
     tags = OutputTagSerializer(many=True)
+    expert_user = serializers.SerializerMethodField(read_only=True)
+    full_expert_user = serializers.SerializerMethodField(read_only=True)
+
+    @staticmethod
+    def get_expert_user(self):
+        q = Process.objects.filter(pk=self.process_id)
+        if q:
+            return str(q.first().expert_user)
+        return " "
+
+    @staticmethod
+    def get_full_expert_user(self):
+        q = Process.objects.filter(pk=self.process_id)
+        if q:
+            return str(q.first().full_expert_user)
+        return " "
 
     class Meta:
         model = UserOutput
-        read_only_fields = ('user', 'id', )
+        read_only_fields = ('id', 'expert_user', 'full_expert_user', )
         fields = [
             'id',
             'process_id',
             'profile_id',
-            'user',
+            'expert_user',
+            'full_expert_user',
             'tags',
         ]
 

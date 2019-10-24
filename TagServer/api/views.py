@@ -13,7 +13,7 @@ from rest_framework import generics
 
 
 class ProcessListAPIView(ListAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     # authentication_classes = [CustomAuthentication]
     serializer_class = ProcessSerializer
     queryset = Process.objects.all()
@@ -27,9 +27,9 @@ class ProcessListAPIView(ListAPIView):
         if str(user) != "AnonymousUser":
             role = user.role
             if role == "full_expert":
-                return get_list_or_404(Process.objects.filter(is_tagged=True).all())
+                return get_list_or_404(Process.objects.filter(status="available", is_tagged=True, is_valid=False).all())
             elif role == "expert":
-                return get_list_or_404(Process.objects.filter(status="available").all())
+                return get_list_or_404(Process.objects.filter(status="available", is_tagged=False, is_valid=False).all())
         return []
 
 
@@ -39,7 +39,7 @@ class ProcessAPIView(generics.RetrieveAPIView):
     lookup_field = 'pk'
 
 
-class UserOutputAPIView(ListAPIView, generics.CreateAPIView):
+class UserOutputAPIView(ListAPIView, generics.CreateAPIView, generics.UpdateAPIView):
     # permission_classes = [IsAuthenticated]
     # authentication_classes = [CustomAuthentication]
     serializer_class = UserOutputSerializer
@@ -57,16 +57,19 @@ class UserOutputAPIView(ListAPIView, generics.CreateAPIView):
                 role = user.role
                 if role == "expert":
                     current_process.is_tagged = True
+                    current_process.expert_user = user
                     for t in data['tags']:
                         Tag.objects.filter(process__id=process_id, title=t['title']).update(is_checked=True)
                 elif role == "full_expert":
                     current_process.is_valid = True
+                    current_process.full_expert_user = user
+                current_process.status = "available"
                 current_process.save()
         return super(UserOutputAPIView, self).post(request)
 
 
 class ProfileListAPIView(generics.ListAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
     # pagination_class = PostPageNumberPagination
