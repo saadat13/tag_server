@@ -26,23 +26,24 @@ class Process(models.Model):
     status = models.CharField(max_length=20, choices=STATUS, default="available")
     is_tagged = models.BooleanField(default=False)
     is_valid = models.BooleanField(default=False)
-    expert_user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='experts')
-    full_expert_user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='fulls')
+    expert_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='experts')
+    full_expert_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='fulls')
 
     def __str__(self):
         return self.title
 
 
 class Profile(models.Model):
-    process = models.ForeignKey(Process, on_delete=models.CASCADE, default=None)
+    process = models.ForeignKey(Process, on_delete=models.CASCADE, default=None, null=True, blank=True)
     is_multi_content = models.BooleanField(default=False)
+    is_tagged = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.pk)
 
 
 class Content(models.Model):
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, default=None, null=True, blank=True)
     url = models.TextField(blank=True, null=False)
     title = models.CharField(max_length=100, blank=True, null=True)
     type = models.CharField(max_length=20, choices=TYPE, blank=False, null=False)
@@ -52,7 +53,8 @@ class Content(models.Model):
 
 
 class Tag(models.Model):
-    process = models.ForeignKey(Process, on_delete=models.CASCADE, blank=True, null=True, related_name='tags')
+    process = models.ForeignKey(Process, on_delete=models.CASCADE, blank=True, null=True, related_name='pc_tags')
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=True, null=True, related_name='pf_tags')
     title = models.CharField(max_length=100, blank=True, null=True)
     is_checked = models.BooleanField(default=False)
 

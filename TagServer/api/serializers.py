@@ -46,12 +46,14 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = [
+            'id',
             'title',
             'is_checked',
         ]
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    tags = serializers.SerializerMethodField(read_only=True)
     content = serializers.SerializerMethodField(read_only=True)
 
     @staticmethod
@@ -59,12 +61,17 @@ class ProfileSerializer(serializers.ModelSerializer):
         # obj is model instance
         return ContentSerializer(Content.objects.filter(profile__id=obj.pk).all(), many=True).data
 
+    @staticmethod
+    def get_tags(obj):
+        return TagSerializer(Tag.objects.filter(profile__id=obj.pk).all(), many=True).data
+
     class Meta:
         model = Profile
         fields = [
             'id',
             'is_multi_content',
             'content',
+            'tags',
         ]
 
 
@@ -73,6 +80,7 @@ class ContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Content
         fields = [
+	    'id',
             'url',
             'title',
             'type',
